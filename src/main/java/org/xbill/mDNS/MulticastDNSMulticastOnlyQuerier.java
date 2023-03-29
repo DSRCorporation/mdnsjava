@@ -514,7 +514,7 @@ public class MulticastDNSMulticastOnlyQuerier implements Querier, NetworkProcess
         } else
         {
             Set<InetAddress> addresses = new HashSet<InetAddress>();
-            Set<String> MACs = new HashSet<String>();
+            Set<String> names = new HashSet<String>();
             Enumeration<NetworkInterface> netIfaces = NetworkInterface.getNetworkInterfaces();
             while (netIfaces.hasMoreElements())
             {
@@ -522,24 +522,13 @@ public class MulticastDNSMulticastOnlyQuerier implements Querier, NetworkProcess
                 
                 if (netIface.isUp() && !netIface.isVirtual() && !netIface.isLoopback())
                 {
-                    // Generate MAC
-                    byte[] hwAddr = netIface.getHardwareAddress();
-                    if (hwAddr != null)
+                    String name = netIface.getName();
+                    if (name != null)
                     {
-                        StringBuilder builder = new StringBuilder();
-                        for (byte octet : hwAddr)
+
+                        if (!names.contains(name))
                         {
-                            builder.append(Integer.toHexString((octet & 0x0FF))).append(":");
-                        }
-                        if (builder.length() > 1)
-                        {
-                            builder.setLength(builder.length() - 1);
-                        }
-                        String mac = builder.toString();
-                        
-                        if (!MACs.contains(mac))
-                        {
-                            MACs.add(mac);
+                            names.add(name);
                             Enumeration<InetAddress> ifaceAddrs = netIface.getInetAddresses();
                             while (ifaceAddrs.hasMoreElements())
                             {
